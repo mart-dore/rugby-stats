@@ -1,0 +1,39 @@
+---
+title: "Rugby dev"
+author: "DORE Martin"
+date: "2024-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Libraries
+```{r}
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(readr)
+library(RColorBrewer)
+library(forcats)
+library(lubridate)
+```
+
+# Data importation
+
+```{r}
+data <- read_csv("data2024-2025.csv")
+head(data)
+```
+```{r}
+# Remove 1st and last columns
+data = data[ , -c(1,ncol(data))]
+colnames(data)
+```
+
+
+```{r}
+unique(data$Total)
+```
+
