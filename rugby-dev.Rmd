@@ -80,11 +80,41 @@ stats_joueurs = data %>%
             nbDrops = sum(D),
             nbTitu = sum(`T/R` == 'T'),
             nbRempl = sum(`T/R` == 'R'),
-            postes = paste(unique(Poste), collapse = ", ")
+            postes = paste(unique(Numéro), collapse = ", ")
   )
 stats_joueurs
 ```
 
+```{r}
+# change char to categorical
+stats_joueurs$Nation = as.factor(stats_joueurs$Nation)
+stats_joueurs$Club = as.factor(stats_joueurs$Club)
+stats_joueurs$Competition = as.factor(stats_joueurs$Competition)
+```
+
+
+## Graphs
+> is.numeric(stats_joueurs$nbTitu)
+> is.numeric(stats_joueurs$Nation)
+
+### Categorical
+
+
+```{r}
+# TODO faire un graph type categorical -> répartition
+# TODO faire un graph type numerical -> répartition
+# TODO automatiser le type de graphs en fonction de la variable choisie
+
+var = 'Nation'
+col = stats_joueurs$var
+
+p = stats_joueurs %>%
+  ggplot(aes(x=var))+
+  geom_bar()
+
+p
+```
+### Numeric
 
 
 
