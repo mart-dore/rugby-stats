@@ -18,6 +18,7 @@ library(readr)
 library(RColorBrewer)
 library(forcats)
 library(lubridate)
+library(naniar)
 ```
 
 # Data importation
@@ -34,6 +35,79 @@ colnames(data)
 
 
 ```{r}
-unique(data$Total)
+# essai
+# penalité
+# transformation
+# drop
+# rouge
+# jaune
+# titu/remplaçant
+miss_var_summary(data)
 ```
+```{r}
+# impute NAs
+# in D,R, J, P, T, E -> replace by 0
+data[c("D", "R", "J", "P", "T", "E")][is.na(data[c("D", "R", "J", "P", "T", "E")])] <- 0
+
+# in FFR, Joueur Supplémentaire, Prêt --> replace by 'None'
+data[c("FFR", "Joueur Supplémentaire", "Prêt")][is.na(data[c("FFR", "Joueur Supplémentaire", "Prêt")])] <- "None"
+
+# in Taille -> replace by mean(data$Taille)
+data$Taille[is.na(data$Taille)] <- mean(data$Taille, na.rm = TRUE)
+data$Poids[is.na(data$Poids)] <- mean(data$Poids, na.rm = TRUE)
+data$Âge[is.na(data$Âge)] <- mean(data$Âge, na.rm = TRUE)
+
+miss_var_summary(data)
+```
+
+# Global statistics
+## Stats by player
+
+```{r}
+stats_joueurs = data %>% 
+  group_by(ID, Nom, Prénom) %>% 
+  summarise(Nation = last(Nationalité),
+            Age = max(Âge),
+            Poids = max(Poids),
+            Competition = last(Compétition),
+            Club = last(Club),
+            nbMatches = sum(Matchs),
+            nbRed = sum(R),
+            nbYellow = sum(J),
+            nbTries = sum(E),
+            nbPenalties = sum(P),
+            nbTransfos = sum(T),
+            nbDrops = sum(D),
+            nbTitu = sum(`T/R` == 'T'),
+            nbRempl = sum(`T/R` == 'R'),
+            postes = paste(unique(Poste), collapse = ", ")
+  )
+stats_joueurs
+```
+
+
+
+
+TODO
+Faire un Stats global sur joueur
+ - le plus de cap
+ - le plus de cartons
+ - le plus de temps de jeu
+ - le plus d'essai
+ - le plus de drops
+ - le plus de péna
+ - le plus lourd / léger
+ - le plus grand / petit
+ 
+ 
+Plutot focus sur la saison 2024 je pense
+Comparatif par ligue (TOP14/ProD2)
+Comparatif par club
+Comparatif entre 2 joueurs
+Comparatif par numéro
+Comparatif par poste (avant / 3 quarts)
+
+
+Pour le dashboards
+Ajouter une page info dev avec lien vers github, linkedin
 
