@@ -120,8 +120,8 @@ num_features = names(stats_joueurs)[sapply(stats_joueurs, is.numeric)]
 # remove id
 num_features = num_features[num_features != "ID"]
 
-plots = list()
 
+plots = list()
 for (i in (1:length(num_features))){
   var = num_features[i]
   
@@ -132,7 +132,7 @@ for (i in (1:length(num_features))){
   
   # print(p)
   # add plot to list
-  plots = list.append(plots, p)
+  plots = c(plots, p)
 }
 
 plot_grid(plotlist = plots)
