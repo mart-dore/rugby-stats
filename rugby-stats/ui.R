@@ -18,12 +18,13 @@ navbarPage(
            # Sidebar with a slider input for number of bins
            sidebarLayout(
              sidebarPanel(
-               shiny::selectInput("columns", "Choose column", choices = NULL)
+               shiny::selectInput("var_top10", "Choose column", choices = NULL),
+               shiny::selectInput("order_top10", "Choose order", choices = c('ASC', 'DESC'))
              ),
              
              # Show a plot of the generated distribution
              mainPanel(
-               textOutput("distPlot")
+               plotOutput("plot_top10_var")
              )
            )
   )

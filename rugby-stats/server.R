@@ -51,6 +51,10 @@ stats_joueurs = data %>%
 stats_joueurs$Nation = as.factor(stats_joueurs$Nation)
 stats_joueurs$Club = as.factor(stats_joueurs$Club)
 stats_joueurs$Competition = as.factor(stats_joueurs$Competition)
+
+num_features = names(stats_joueurs)[sapply(stats_joueurs, is.numeric)]
+# remove id
+num_features = num_features[num_features != "ID"]
 # ---- end----
 
 ## SERVER ----
@@ -58,12 +62,54 @@ function(input, output, session) {
   
   observe({
     message("test")
-    shiny::updateSelectInput(session, inputId = "columns", choices = colnames(data))
+    shiny::updateSelectInput(session,
+                             inputId = "var_top10",
+                             choices = num_features)
   })
   
-  output$distPlot <- renderText({
-    print(names(data))
+  output$plot_top10_var = renderPlot({
+    req(input$var_top10)
+    req(input$order_top10)
     
+    var = input$var_top10
+    order = input$order_top10
+    
+    if (order == 'DESC'){
+      top10var <- stats_joueurs %>%
+        mutate(NomPrenom = paste(Nom, Prénom)) %>% 
+        arrange(desc(get(var))) %>% 
+        head(n=10)
+      
+      p = top10var %>%
+        ggplot(aes(x = reorder(NomPrenom, get(var)), y = get(var), fill = Club)) +
+        geom_bar(stat = "identity") +
+        geom_text(aes(label = get(var)), hjust = +1.1) +
+        coord_flip() +
+        ylab(var) +
+        xlab("") +
+        ggtitle(paste("Top 10 des joueurs par", var, "décroissant")) +
+        theme_classic() +
+        theme(axis.text.x = element_text(angle = 90))
+    }
+    else {if (order == 'ASC'){
+      top10var <- stats_joueurs %>%
+        mutate(NomPrenom = paste(Nom, Prénom)) %>% 
+        arrange(desc(get(var))) %>% 
+        tail(n=10)
+      
+      p = top10var %>%
+        ggplot(aes(x = reorder(NomPrenom, -get(var)), y = get(var), fill = Club)) +
+        geom_bar(stat = "identity") +
+        geom_text(aes(label = get(var)), hjust = +1.1) +
+        coord_flip() +
+        ylab(var) +
+        xlab("") +
+        ggtitle(paste("Top 10 des joueurs par", var, "croissant")) +
+        theme_classic() +
+        theme(axis.text.x = element_text(angle = 90))
+    }
+    }
+    p
   })
   
 }
