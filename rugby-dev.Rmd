@@ -19,6 +19,7 @@ library(RColorBrewer)
 library(forcats)
 library(lubridate)
 library(naniar)
+library(gridExtra)
 ```
 
 # Data importation
@@ -31,6 +32,10 @@ head(data)
 # Remove 1st and last columns
 data = data[ , -c(1,ncol(data))]
 colnames(data)
+```
+```{r}
+# filter 2024 season
+data = data %>% filter(Saison == 2024)
 ```
 
 
@@ -72,6 +77,7 @@ stats_joueurs = data %>%
             Competition = last(Compétition),
             Club = last(Club),
             nbMatches = sum(Matchs),
+            totalTps = sum(Temps),
             nbRed = sum(R),
             nbYellow = sum(J),
             nbTries = sum(E),
@@ -80,8 +86,8 @@ stats_joueurs = data %>%
             nbDrops = sum(D),
             nbTitu = sum(`T/R` == 'T'),
             nbRempl = sum(`T/R` == 'R'),
-            postes = paste(unique(Numéro), collapse = ", ")
-  )
+            postes = paste(unique(Numéro), collapse = ", "))
+
 stats_joueurs
 ```
 
@@ -97,39 +103,91 @@ stats_joueurs$Competition = as.factor(stats_joueurs$Competition)
 > is.numeric(stats_joueurs$nbTitu)
 > is.numeric(stats_joueurs$Nation)
 
+### Numeric
+
+```{r}
+num_features = names(stats_joueurs)[sapply(stats_joueurs, is.numeric)]
+# remove id
+num_features = num_features[num_features != "ID"]
+```
+
+
 ### Categorical
 
+
+
+
+## Stat by var
 
 ```{r}
 # TODO faire un graph type categorical -> répartition
 # TODO faire un graph type numerical -> répartition
 # TODO automatiser le type de graphs en fonction de la variable choisie
 
-var = 'Nation'
-col = stats_joueurs$var
+var = 'Poids'
+order = 'asc'
 
-p = stats_joueurs %>%
-  ggplot(aes(x=var))+
-  geom_bar()
+if (order == 'desc'){
+  top10var <- stats_joueurs %>%
+    mutate(NomPrenom = paste(Nom, Prénom)) %>% 
+    arrange(desc(get(var))) %>% 
+    head(n=10)
+  
+  p = top10var %>%
+    ggplot(aes(x = reorder(NomPrenom, get(var)), y = get(var), fill = Club)) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = get(var)), hjust = +1.1) +
+    coord_flip() +
+    ylab(var) +
+    xlab("") +
+    ggtitle(paste("Top 10 des joueurs par", var, "décroissant")) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 90))
+}else {if (order == 'asc'){
+  top10var <- stats_joueurs %>%
+    mutate(NomPrenom = paste(Nom, Prénom)) %>% 
+    arrange(desc(get(var))) %>% 
+    tail(n=10)
+  
+    p = top10var %>%
+    ggplot(aes(x = reorder(NomPrenom, -get(var)), y = get(var), fill = Club)) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = get(var)), hjust = +1.1) +
+    coord_flip() +
+    ylab(var) +
+    xlab("") +
+    ggtitle(paste("Top 10 des joueurs par", var, "croissant")) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 90))
+  }
+}
+
+
+
 
 p
 ```
-### Numeric
+
+```{r}
+dataClub = data %>% filter(Compétition == 'Top 14 2024')
+```
+
+
 
 
 
 TODO
 Faire un Stats global sur joueur
- - le plus de cap
- - le plus de cartons
- - le plus de temps de jeu
- - le plus d'essai
- - le plus de drops
- - le plus de péna
- - le plus lourd / léger
- - le plus grand / petit
- 
- 
+- le plus de cap
+- le plus de cartons
+- le plus de temps de jeu
+- le plus d'essai
+- le plus de drops
+- le plus de péna
+- le plus lourd / léger
+- le plus grand / petit
+
+
 Plutot focus sur la saison 2024 je pense
 Comparatif par ligue (TOP14/ProD2)
 Comparatif par club
