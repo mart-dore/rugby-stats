@@ -109,8 +109,8 @@ stats_joueurs$Competition = as.factor(stats_joueurs$Competition)
 
 
 ```{r}
-p = ggplot(data = stats_joueurs, aes(x=Poids)) +
-  geom_histogram(aes(y = ..density..), color="black", fill = 'lightblue')+
+p = ggplot(data = stats_joueurs, aes(x=Poids, fill=Competition)) +
+  geom_histogram(aes(y = ..density..),position = "identity", color="black", alpha =.6)+
   geom_density(alpha=0, fill = "white", color = "blue")
 
 p
