@@ -20,6 +20,7 @@ library(forcats)
 library(lubridate)
 library(naniar)
 library(gridExtra)
+library(cowplot)
 ```
 
 # Data importation
@@ -105,10 +106,36 @@ stats_joueurs$Competition = as.factor(stats_joueurs$Competition)
 
 ### Numeric
 
+
+```{r}
+p = ggplot(data = stats_joueurs, aes(x=Poids)) +
+  geom_histogram(aes(y = ..density..), color="black", fill = 'lightblue')+
+  geom_density(alpha=0, fill = "white", color = "blue")
+
+p
+```
+
 ```{r}
 num_features = names(stats_joueurs)[sapply(stats_joueurs, is.numeric)]
 # remove id
 num_features = num_features[num_features != "ID"]
+
+plots = list()
+
+for (i in (1:length(num_features))){
+  var = num_features[i]
+  
+  p = ggplot(data = stats_joueurs, aes(x=get(var))) +
+    geom_histogram(aes(y = ..density..), color="black", fill = 'lightblue')+
+    geom_density(alpha=0, fill = "white", color = "blue")+
+    xlab(var)
+  
+  # print(p)
+  # add plot to list
+  plots = list.append(plots, p)
+}
+
+plot_grid(plotlist = plots)
 ```
 
 
@@ -149,7 +176,7 @@ if (order == 'desc'){
     arrange(desc(get(var))) %>% 
     tail(n=10)
   
-    p = top10var %>%
+  p = top10var %>%
     ggplot(aes(x = reorder(NomPrenom, -get(var)), y = get(var), fill = Club)) +
     geom_bar(stat = "identity") +
     geom_text(aes(label = get(var)), hjust = +1.1) +
@@ -159,7 +186,7 @@ if (order == 'desc'){
     ggtitle(paste("Top 10 des joueurs par", var, "croissant")) +
     theme_classic() +
     theme(axis.text.x = element_text(angle = 90))
-  }
+}
 }
 
 
@@ -177,6 +204,7 @@ dataClub = data %>% filter(Compétition == 'Top 14 2024')
 
 
 TODO
+mettre grenoble en prod2
 Faire un Stats global sur joueur
 - le plus de cap
 - le plus de cartons
