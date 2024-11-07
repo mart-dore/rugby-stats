@@ -74,6 +74,7 @@ stats_joueurs = data %>%
   group_by(ID, Nom, Prénom) %>% 
   summarise(Nation = last(Nationalité),
             Age = max(Âge),
+            Taille = max(Taille),
             Poids = max(Poids),
             Competition = last(Compétition),
             Club = last(Club),
@@ -119,10 +120,10 @@ p
 num_features = names(stats_joueurs)[sapply(stats_joueurs, is.numeric)]
 # remove id
 num_features = num_features[num_features != "ID"]
-
+tpa = c('Taille', 'Poids', 'Age')
 
 plots = list()
-for (i in (1:length(num_features))){
+for (i in (1:length(tpa))){
   var = num_features[i]
   
   p = ggplot(data = stats_joueurs, aes(x=get(var))) +
@@ -132,7 +133,7 @@ for (i in (1:length(num_features))){
   
   # print(p)
   # add plot to list
-  plots = c(plots, p)
+  plots[[i]] = p
 }
 
 plot_grid(plotlist = plots)
